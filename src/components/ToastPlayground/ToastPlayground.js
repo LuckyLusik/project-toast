@@ -1,7 +1,8 @@
 import React from "react";
 
 import Button from "../Button";
-import Toast from "../Toast";
+
+import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
 
@@ -9,27 +10,50 @@ const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
   const [message, setMessage] = React.useState("");
-  const [option, setOption] = React.useState("notice");
-  const [isToastOpen, setIsToastOpen] = React.useState(false);
+  const [option, setOption] = React.useState(VARIANT_OPTIONS[0]);
+  const [toasts, setToasts] = React.useState([]);
+  function handleAddToast(message, option) {
+    if (!message) {
+      return;
+    }
+
+    const nextToast = [
+      ...toasts,
+      {
+        message,
+        variant: option,
+        id: crypto.randomUUID(),
+      },
+    ];
+    setToasts(nextToast);
+  }
+  function handleToastClose(id) {
+    const nextToast = toasts.filter((toast) => {
+      return toast.id !== id;
+    });
+
+    setToasts(nextToast);
+  }
+
   return (
     <div className={styles.wrapper}>
       <header>
         <img alt='Cute toast mascot' src='/toast.png' />
         <h1>Toast Playground</h1>
       </header>
-      {isToastOpen && (
-        <Toast
-          message={message}
-          variant={option}
-          setIsToastOpen={setIsToastOpen}
-        />
-      )}
+
+      <ToastShelf
+        handleToastClose={handleToastClose}
+        toasts={toasts}
+      ></ToastShelf>
 
       <form
         className={styles.controlsWrapper}
         onSubmit={(event) => {
           event.preventDefault();
-          setIsToastOpen(true);
+          handleAddToast(message, option);
+          setMessage("");
+          setOption(VARIANT_OPTIONS[0]);
         }}
       >
         <div className={styles.row}>
